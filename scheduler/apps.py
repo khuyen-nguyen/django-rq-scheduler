@@ -26,13 +26,14 @@ class SchedulerConfig(AppConfig):
 
     def reschedule_repeatable_jobs(self):
         RepeatableJob = self.get_model('RepeatableJob')
-        jobs = RepeatableJob.objects.filter(enabled=True)
+        jobs = RepeatableJob.objects.filter(
+            enabled=True, scheduled_time__gte=Now())
         self.reschedule_jobs(jobs)
 
     def reschedule_scheduled_jobs(self):
         ScheduledJob = self.get_model('ScheduledJob')
         jobs = ScheduledJob.objects.filter(
-            enabled=True, scheduled_time__lte=Now())
+            enabled=True, scheduled_time__gte=Now())
         self.reschedule_jobs(jobs)
 
     def reschedule_jobs(self, jobs):
