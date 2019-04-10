@@ -100,11 +100,13 @@ class BaseJob(TimeStampedModel):
     def schedule(self):
         if self.is_schedulable() is False:
             return False
-        kwargs = {}
+        kwargs = {
+            'job_description': self.name
+        }
         if self.timeout:
             kwargs['timeout'] = self.timeout
         if self.result_ttl is not None:
-            kwargs['result_ttl'] = self.result_ttl
+            kwargs['job_result_ttl'] = self.result_ttl
         job = self.scheduler().enqueue_at(
             self.schedule_time_utc(), self.callable_func(),
             **kwargs
@@ -175,12 +177,13 @@ class RepeatableJob(ScheduledTimeMixin, BaseJob):
             'scheduled_time': self.schedule_time_utc(),
             'func': self.callable_func(),
             'interval': self.interval_seconds(),
-            'repeat': self.repeat
+            'repeat': self.repeat,
+            'job_description': self.name
         }
         if self.timeout:
             kwargs['timeout'] = self.timeout
         if self.result_ttl is not None:
-            kwargs['result_ttl'] = self.result_ttl
+            kwargs['job_result_ttl'] = self.result_ttl
         job = self.scheduler().schedule(**kwargs)
         self.job_id = job.id
         return True
@@ -217,6 +220,7 @@ class CronJob(BaseJob):
         if self.is_schedulable() is False:
             return False
         kwargs = {
+            'job_description': self.name,
             'func': self.callable_func(),
             'cron_string': self.cron_string,
             'repeat': self.repeat
