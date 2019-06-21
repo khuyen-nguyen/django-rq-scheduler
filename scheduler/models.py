@@ -101,7 +101,7 @@ class BaseJob(TimeStampedModel):
         if self.is_schedulable() is False:
             return False
         kwargs = {
-            'description': self.name
+            'job_description': self.name
         }
         if self.timeout:
             kwargs['timeout'] = self.timeout
